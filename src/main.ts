@@ -5,13 +5,6 @@ Devvit.configure({ redditAPI: true, });
 const defaultValue = 'Post does not contain an image or gallery';
 Devvit.addSettings([
   {
-    type: "boolean",
-    name: 'acticve',
-    label: 'is Active?',
-    helpText: 'report posts on april 1 UTC?',
-    defaultValue: false,
-  },
-  {
     type: "string",
     name: 'report_reason',
     label: 'Report Reason?',
@@ -27,15 +20,12 @@ Devvit.addSettings([
 Devvit.addTrigger({
   event: 'PostCreate',
   async onEvent(event, context) {
-    if (await context.settings.get('reportWithoutImage')) {
-      const date = new Date(event.post?.createdAt || NaN), currentDate = new Date(Date.UTC(2026,3));
+    if (event.post) {
+      const date = new Date(event.post.createdAt || NaN), currentDate = new Date(Date.UTC(2026, 3));
       if (currentDate.setUTCHours(0, 0, 0, 0) !== date.setUTCHours(0, 0, 0, 0)) return;
-      // const toMatch = await context.settings.get<string>('onlyIfFlairId');
-      if (event.post) {
-        const reason = `u/${context.appName}: ` + ((await context.settings.get<string>('report_reason')) || defaultValue);
-        const reportablePost = await context.reddit.getPostById(event.post.id);
-        await context.reddit.report(reportablePost, { reason });
-      }
+      const reason = `u/${context.appSlug}: ` + ((await context.settings.get<string>('report_reason')) || defaultValue);
+      const reportablePost = await context.reddit.getPostById(event.post.id);
+      await context.reddit.report(reportablePost, { reason });
     }
   },
 });
