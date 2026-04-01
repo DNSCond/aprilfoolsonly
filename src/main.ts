@@ -21,8 +21,8 @@ Devvit.addTrigger({
   event: 'PostCreate',
   async onEvent(event, context) {
     if (event.post) {
-      const date = new Date(event.post.createdAt || NaN), currentDate = new Date(Date.UTC(2026, 3));
-      if (currentDate.setUTCHours(0, 0, 0, 0) !== date.setUTCHours(0, 0, 0, 0)) return;
+      const date = new Date(event.post.createdAt || NaN), checkDate = new Date(Date.UTC(date.getFullYear(), 3));
+      if (checkDate.setUTCHours(0, 0, 0, 0) !== date.setUTCHours(0, 0, 0, 0)) return;
       const reason = `u/${context.appSlug}: ` + ((await context.settings.get<string>('report_reason')) || defaultValue);
       const reportablePost = await context.reddit.getPostById(event.post.id);
       await context.reddit.report(reportablePost, { reason });
